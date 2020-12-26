@@ -32,6 +32,7 @@ const tweetController = require('../controllers/tweetController')
 const userController = require('../controllers/userController')
 const replyController = require('../controllers/replyController')
 const followshipController = require('../controllers/followshipController')
+const chatController = require('../controllers/chatController')
 
 //登入登出註冊
 router.post('/signin', userController.signIn)
@@ -58,9 +59,7 @@ router.post('/tweets/:id/like', authenticated, userController.likeTweet)
 router.post('/tweets/:id/unlike', authenticated, userController.unlikeTweet)
 
 //user
-
 router.get('/users/top', authenticated, userController.getTopUsers)
-
 router.put('/users/:id', authenticated, upload.fields([{ name: 'avatar' }, { name: 'cover' }]), userController.putProfile)
 router.get('/users/:id/replies', authenticated, userController.getUserReplies)
 router.get('/users/:id/followings', authenticated, userController.getFollowings)
@@ -71,6 +70,7 @@ router.get('/users/:id/likes', authenticated, userController.getUserLikes)
 router.get('/users/:id/setting', authenticated, userController.getSettingPage)
 router.put('/users/:id/setting', authenticated, userController.putSetting)
 router.get('/users/:id', authenticated, userController.getProfile)
+
 //followship
 router.post('/followships', authenticated, followshipController.addFollowing)
 router.delete('/followships/:followingId', authenticated, followshipController.removeFollowing)
@@ -80,5 +80,9 @@ router.post('/admin/signin', adminController.signIn)
 router.get('/admin/tweets', authenticated, authenticatedAdmin, adminController.getTweets)
 router.get('/admin/users', authenticated, authenticatedAdmin, adminController.getUsers)
 router.delete('/admin/tweets/:id', authenticated, authenticatedAdmin, adminController.deleteTweet)
+
+//chat
+// :hostChatId表示發起聊天的人(即當前登入的使用者)， :id表示被聊天的對象
+app.get('/chat/:chatted', authenticated, chatController.showChat)
 
 module.exports = router
