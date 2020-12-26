@@ -2,11 +2,15 @@ const SocketServer = require('ws').Server
 const db = require('../models')
 const Channel = db.Channel
 const Message = db.Message
+
+
+
 const websocket = {
   websocket: function (app, sessionParser, server, port) {
     const Websocket = require('ws')
     let user = {} // 連接用戶
     let online = 0 // 在線人數
+
     const verifyClientFn = function (info) {
       // console.log(info.req.headers.cookie) // 這邊可以拿到session
       infoUrl = info.req.headers
@@ -15,8 +19,10 @@ const websocket = {
       return true
     }
     const wss = new Websocket.Server({ port: 3001, clientTracking: true, noserver: true, verifyClient: verifyClientFn })
+
     server.on('upgrade', function (request, socket, head) {
       console.log(`parsing session from request...`)
+
       // 把session從request解析出來(其實如果是在原本的http server間的req傳遞，不用那麼麻煩，直接req.session就可以完成存入跟取出資料)
       sessionParser(request, {}, () => {
         console.log(request.session.passport.user)
@@ -31,12 +37,14 @@ const websocket = {
         })
       })
     })
+
     // 當WebSocket從外面連結時執行
     wss.on('connection', (ws, req) => {
       console.log('params here', req.params)
       console.log(req.session.passport)
       console.log('Client connected')
       online = wss._server._connections
+
       console.log('req.url here', req.url)
       let url = req.url
       let chatHost = req.session.passport.user //發起聊天的人的id  
@@ -46,6 +54,7 @@ const websocket = {
       if (chatHost) {
         user[chatHost] = ws
       }
+
       let chattedUser = url.split('/')[2] //被聊天的對象的id  
       console.log(chattedUser)
       // 對message進行監聽，接收從Client送進來的訊息
@@ -53,13 +62,16 @@ const websocket = {
         console.log('data here', JSON.parse(data))
         const target1 = JSON.parse(data).target1
         const message1 = JSON.parse(data).message1
+
         Message.create({
           sender: chatHost,
           message: data,
           targetChannel: target1
         })
+
         console.log('收到' + url + '的消息' + data)
         // 判斷有沒有被聊天的對象
+
         //先找channels,抓出id:a，用a去找出message{id:a}，塞聊天訊息
         if (chattedUser) {
           console.log('有過嗎1')
@@ -76,6 +88,7 @@ const websocket = {
               user[chattedUser].send(message1) // 把訊息送給被聊天的對象
               // ws.send(message1) 也把訊息送回給發起聊天的人
               // ws.send('發送成功')
+
             } else {
               ws.send('對方斷線')
             }
@@ -84,13 +97,17 @@ const websocket = {
           }
         }
       })
+
       // 連結關閉時執行
       ws.on('close', () => {
         console.log('Close connected ')
       })
     })
-    server.listen(port, function () {
-      console.log('Listening on http://localhost:3000');
-    })
+
+    // server.listen(port, function () {
+    //   console.log('Listening on http://localhost:3000');
+    // })
   }
 }
+
+module.exports = websocket

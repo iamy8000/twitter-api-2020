@@ -6,13 +6,13 @@ const flash = require('connect-flash')
 const session = require('express-session')
 const methodOverride = require('method-override')
 const cors = require('cors')
+const app = express()
 
 //websocket
 const http = require('http')
 const server = http.createServer(app)
 const sessionParser = session({ secret: "12345", resave: false, saveUninitialized: false })
 
-const app = express()
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config()
 }
@@ -28,6 +28,7 @@ app.use(session({ secret: 'itismyserect', resave: false, saveUninitialized: fals
 app.use(passport.initialize())
 app.use(passport.session())
 app.use(flash())
+app.use(express.static("public"))
 app.use('/upload', express.static(__dirname + '/upload'))
 app.use(sessionParser)
 
@@ -41,7 +42,7 @@ app.use((req, res, next) => {
 
 app.listen(port, () => console.log(`Example app listening on port http://localhost:${port}`))
 
-require('./routes')(app)
 require('./config/websocketConfig').websocket(app, sessionParser, server, port)
+require('./routes')(app)
 
 module.exports = app

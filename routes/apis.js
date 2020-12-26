@@ -83,6 +83,6 @@ router.delete('/admin/tweets/:id', authenticated, authenticatedAdmin, adminContr
 
 //chat
 // :hostChatId表示發起聊天的人(即當前登入的使用者)， :id表示被聊天的對象
-app.get('/chat/:chatted', authenticated, chatController.showChat)
+router.get('/chat/:chatted', authenticated, chatController.showChat)
 
 module.exports = router
