@@ -168,7 +168,6 @@ module.exports = (io) => {
             io.to(`${reply.UserId}'s channel`).emit('get notification')
           })
       })
-
       // 用前端回傳的該貼文所有回覆，產生一堆通知給回覆過該貼文的人，最後再通知他們
       //
       //
